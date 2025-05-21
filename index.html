@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Giulia Photography Portfolio</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <script src="gallery.js" defer></script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-content">
+      <h1>HEADER</h1>
+      <div class="logo">Giulia</div>
+      <div class="controls">
+        <button class="camera-button">F/23</button>
+        <button class="menu-button">MENU</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="gallery-container">
+    <div class="gallery">
+      <div class="img-container" id="img1">
+        <img src="image/1.jpg" alt="Landscape photograph" class="gallery-img" />
+      </div>
+      <div class="img-container" id="img2">
+        <img src="image/2.jpg" alt="Nature photograph" class="gallery-img" />
+      </div>
+      <div class="img-container featured" id="img3">
+        <img src="image/3.jpg" alt="Mountain landscape" class="gallery-img" />
+      </div>
+      <div class="img-container" id="img4">
+        <img src="image/4.jpg" alt="Scenic view" class="gallery-img" />
+      </div>
+      <div class="img-container" id="img5">
+        <img src="image/5.jpg" alt="Coastal view" class="gallery-img" />
+      </div>
+      <div class="img-container" id="img6">
+        <img src="image/6.jpg" alt="Coastal view" class="gallery-img" />
+      </div>
+      <div class="img-container" id="img7">
+        <img src="image/7.jpg" alt="Coastal view" class="gallery-img" />
+      </div>
+    </div>
+
+    <div class="thumbnail-sidebar">
+      <div class="thumbnail" data-target="img1">
+        <img src="image/1.jpg" alt="Thumbnail" />
+      </div>
+      <div class="thumbnail" data-target="img2">
+        <img src="image/2.jpg" alt="Thumbnail" />
+      </div>
+      <div class="thumbnail active" data-target="img3">
+        <img src="image/3.jpg" alt="Thumbnail" />
+      </div>
+      <div class="thumbnail active" data-target="img4">
+        <img src="image/4.jpg" alt="Thumbnail" />
+      </div>
+      <div class="thumbnail active" data-target="img5">
+        <img src="image/5.jpg" alt="Thumbnail" />
+      </div>
+      <div class="thumbnail active" data-target="img6">
+        <img src="image/6.jpg" alt="Thumbnail" />
+      </div>
+      <div class="thumbnail active" data-target="img7">
+        <img src="image/7.jpg" alt="Thumbnail" />
+      </div>
+    </div>
+  </main>
+  
+  <footer class="site-footer">
+    <div class="footer-content">
+      <h2>FOOTER</h2>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact</a>
+      </div>
+      <p class="copyright">© 2025 Giulia Photography. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get all thumbnails
+      const thumbnails = document.querySelectorAll('.thumbnail');
+      
+      // Get all image containers
+      const imgContainers = document.querySelectorAll('.img-container');
+      
+      // Create an object to store image positions
+      const imagePositions = {};
+      
+      // Get the gallery container for scroll events
+      const galleryContainer = document.querySelector('.gallery-container');
+      
+      // Function to hide all images except the target one
+      function showImage(targetId) {
+        // Hide all images first
+        imgContainers.forEach(container => {
+          container.style.display = 'none';
+        });
+        
+        // Show only the target image
+        const targetContainer = document.getElementById(targetId);
+        if (targetContainer) {
+          targetContainer.style.display = 'block';
+        }
+        
+        // Update active class on thumbnails
+        updateActiveThumbnail(targetId);
+      }
+      
+      // Function to update active thumbnail
+      function updateActiveThumbnail(targetId) {
+        thumbnails.forEach(thumb => {
+          thumb.classList.remove('active');
+          if (thumb.getAttribute('data-target') === targetId) {
+            thumb.classList.add('active');
+          }
+        });
+      }
+      
+      // Calculate image positions for scroll detection
+      function calculateImagePositions() {
+        imgContainers.forEach(container => {
+          const rect = container.getBoundingClientRect();
+          imagePositions[container.id] = {
+            top: rect.top + window.scrollY,
+            bottom: rect.bottom + window.scrollY
+          };
+        });
+      }
+      
+      // Handle scroll events
+      function handleScroll() {
+        const scrollPosition = window.scrollY + window.innerHeight / 2;
+        
+        // Find which image is most visible
+        let currentImageId = null;
+        let closestDistance = Infinity;
+        
+        for (const id in imagePositions) {
+          const pos = imagePositions[id];
+          const middle = (pos.top + pos.bottom) / 2;
+          const distance = Math.abs(scrollPosition - middle);
+          
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            currentImageId = id;
+          }
+        }
+        
+        // Update active thumbnail if we found a visible image
+        if (currentImageId) {
+          updateActiveThumbnail(currentImageId);
+        }
+      }
+      
+      // Add click event to each thumbnail
+      thumbnails.forEach(thumbnail => {
+        thumbnail.addEventListener('click', function() {
+          const targetId = this.getAttribute('data-target');
+          showImage(targetId);
+          
+          // Scroll to the selected image
+          const targetElement = document.getElementById(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+      
+      // Show the initial active image (img3 in this case)
+      showImage('img3');
+      
+      // Calculate image positions after images are loaded
+      window.addEventListener('load', function() {
+        // Modify the display style to show all images
+        imgContainers.forEach(container => {
+          container.style.display = 'block';
+        });
+        
+        calculateImagePositions();
+        
+        // Add scroll event listener
+        window.addEventListener('scroll', handleScroll);
+      });
+      
+      // Recalculate positions on window resize
+      window.addEventListener('resize', calculateImagePositions);
+    });
+  </script>
+</body>
+</html>
